@@ -25,6 +25,15 @@ func JWTSecret() []byte {
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Trust headers injected by the gateway (token already validated via gRPC)
+		if userID := c.GetHeader("X-User-Id"); userID != "" {
+			c.Set("userId", userID)
+			c.Set("role", c.GetHeader("X-User-Role"))
+			c.Next()
+			return
+		}
+
+		// Direct calls (e.g. local dev without the gateway)
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})

@@ -39,6 +39,7 @@ func main() {
 	followerURL := serviceURL("FOLLOWER_URL", "http://follower:8084")
 
 	r := gin.Default()
+	r.RedirectTrailingSlash = false
 	r.Use(middleware.CORS())
 
 	api := r.Group("/api")
@@ -50,9 +51,13 @@ func main() {
 		protected := api.Group("")
 		protected.Use(middleware.Auth(authClient))
 		{
+			protected.Any("/users", proxy.To(stakeholdersURL))
 			protected.Any("/users/*path", proxy.To(stakeholdersURL))
+			protected.Any("/tours", proxy.To(toursURL))
 			protected.Any("/tours/*path", proxy.To(toursURL))
+			protected.Any("/blogs", proxy.To(blogsURL))
 			protected.Any("/blogs/*path", proxy.To(blogsURL))
+			protected.Any("/social", proxy.To(followerURL))
 			protected.Any("/social/*path", proxy.To(followerURL))
 		}
 	}
