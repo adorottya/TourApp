@@ -29,4 +29,5 @@ public class TourExecution {
     private List<String> visitedKeypoints = new ArrayList<>();
     private double lastKnownLat;
     private double lastKnownLong;
+    private LocalDateTime lastActivity;
 }

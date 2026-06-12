@@ -1,7 +1,9 @@
 package uns.ac.rs.soa.tours.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import uns.ac.rs.soa.tours.model.TouristPosition;
 import uns.ac.rs.soa.tours.repository.PositionRepository;
 
@@ -22,5 +24,10 @@ public class PositionService {
                 .recordedAt(LocalDateTime.now())
                 .build();
         return positionRepository.save(pos);
+    }
+
+    public TouristPosition getLatest(String touristId) {
+        return positionRepository.findTopByTouristIdOrderByRecordedAtDesc(touristId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No position recorded"));
     }
 }

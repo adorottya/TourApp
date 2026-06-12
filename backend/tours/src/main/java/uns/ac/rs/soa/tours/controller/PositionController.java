@@ -22,4 +22,9 @@ public class PositionController {
             @RequestBody Map<String, Object> body) {
         return ResponseEntity.status(HttpStatus.CREATED).body(positionService.record(userId, body));
     }
+
+    @GetMapping("/latest")
+    public ResponseEntity<TouristPosition> getLatest(@RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(positionService.getLatest(userId));
+    }
 }

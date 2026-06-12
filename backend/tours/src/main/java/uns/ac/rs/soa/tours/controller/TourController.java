@@ -28,6 +28,11 @@ public class TourController {
         return ResponseEntity.status(HttpStatus.CREATED).body(tourService.create(userId, body));
     }
 
+    @GetMapping
+    public ResponseEntity<List<Tour>> listPublished() {
+        return ResponseEntity.ok(tourService.getPublished());
+    }
+
     @GetMapping("/my")
     public ResponseEntity<List<Tour>> myTours(@RequestHeader("X-User-Id") String userId) {
         return ResponseEntity.ok(tourService.getByGuide(userId));

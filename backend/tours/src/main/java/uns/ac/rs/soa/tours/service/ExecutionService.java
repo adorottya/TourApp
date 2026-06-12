@@ -38,12 +38,14 @@ public class ExecutionService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "You already have an active execution");
         }
 
+        LocalDateTime now = LocalDateTime.now();
         TourExecution execution = TourExecution.builder()
                 .touristId(touristId)
                 .tourId(token.getTourId())
                 .tokenId(tokenId)
                 .status("ACTIVE")
-                .startedAt(LocalDateTime.now())
+                .startedAt(now)
+                .lastActivity(now)
                 .build();
         return executionRepository.save(execution);
     }
@@ -66,9 +68,8 @@ public class ExecutionService {
             }
         }
 
-        if (anyNewVisited) {
-            executionRepository.save(execution);
-        }
+        execution.setLastActivity(LocalDateTime.now());
+        executionRepository.save(execution);
 
         return Map.of(
                 "visitedKeypoints", execution.getVisitedKeypoints(),
@@ -82,20 +83,25 @@ public class ExecutionService {
         TourExecution execution = findActive(executionId, touristId);
         execution.setLastKnownLat(lat);
         execution.setLastKnownLong(lon);
+        execution.setLastActivity(LocalDateTime.now());
         return executionRepository.save(execution);
     }
 
     public TourExecution complete(String executionId, String touristId) {
         TourExecution execution = findActive(executionId, touristId);
+        LocalDateTime now = LocalDateTime.now();
         execution.setStatus("COMPLETED");
-        execution.setEndedAt(LocalDateTime.now());
+        execution.setEndedAt(now);
+        execution.setLastActivity(now);
         return executionRepository.save(execution);
     }
 
     public TourExecution abandon(String executionId, String touristId) {
         TourExecution execution = findActive(executionId, touristId);
+        LocalDateTime now = LocalDateTime.now();
         execution.setStatus("ABANDONED");
-        execution.setEndedAt(LocalDateTime.now());
+        execution.setEndedAt(now);
+        execution.setLastActivity(now);
         return executionRepository.save(execution);
     }
 

@@ -31,6 +31,10 @@ public class TourService {
         return tourRepository.save(tour);
     }
 
+    public List<Tour> getPublished() {
+        return tourRepository.findByStatus("PUBLISHED");
+    }
+
     public List<Tour> getByGuide(String guideId) {
         return tourRepository.findByGuideId(guideId);
     }

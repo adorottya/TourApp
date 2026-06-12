@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface TourRepository extends MongoRepository<Tour, String> {
     List<Tour> findByGuideId(String guideId);
+    List<Tour> findByStatus(String status);
 }

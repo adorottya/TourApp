@@ -36,6 +36,10 @@ public class PurchaseService {
         Tour tour = tourRepository.findById(tourId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Tour not found"));
 
+        if (!"PUBLISHED".equals(tour.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only published tours can be purchased");
+        }
+
         Cart cart = cartRepository.findByTouristId(touristId)
                 .orElse(Cart.builder().touristId(touristId).items(new ArrayList<>()).build());
 
