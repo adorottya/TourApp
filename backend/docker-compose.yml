@@ -28,6 +28,15 @@ services:
     networks:
       - backend-net
 
+  neo4j:
+    image: neo4j:5
+    environment:
+      NEO4J_AUTH: neo4j/password
+    volumes:
+      - neo4j-data:/data
+    networks:
+      - backend-net
+
   stakeholders:
     build: ./stakeholders
     ports:
@@ -59,9 +68,22 @@ services:
     environment:
       MONGO_URL: mongodb://mongo-blogs:27017
       MONGO_DB: blog
-      FOLLOWER_SERVICE_URL: http://follower-service:8084
+      FOLLOWER_SERVICE_URL: http://follower:8084
     depends_on:
       - mongo-blogs
+    networks:
+      - backend-net
+
+  follower:
+    build: ./follower
+    ports:
+      - "8084:8084"
+    environment:
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: password
+    depends_on:
+      - neo4j
     networks:
       - backend-net
 
@@ -69,6 +91,7 @@ volumes:
   postgres-stakeholders-data:
   mongo-tours-data:
   mongo-blogs-data:
+  neo4j-data:
 
 networks:
   backend-net:
