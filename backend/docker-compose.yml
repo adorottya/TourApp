@@ -45,7 +45,8 @@ services:
     ports:
       - "8082:8082"
     environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongo-tours:27017/tours
+      MONGO_URI: mongodb://mongo-tours:27017/tours
+      GRPC_PORT: 9092
     depends_on:
       - mongo-tours
     networks:
