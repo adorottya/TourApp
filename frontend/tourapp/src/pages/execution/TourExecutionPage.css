@@ -1,0 +1,44 @@
+.execution-layout {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 800px) { .execution-layout { grid-template-columns: 1fr; } }
+
+.execution-map { }
+
+.execution-panel { display: flex; flex-direction: column; gap: 14px; }
+
+.execution-status { }
+
+.execution-status__header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
+
+.execution-progress { display: flex; flex-direction: column; gap: 6px; }
+
+.progress-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.progress-value { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+
+.progress-bar {
+  height: 8px; background: var(--border); border-radius: 4px; overflow: hidden;
+}
+
+.progress-bar__fill {
+  height: 100%; background: var(--primary); border-radius: 4px;
+  transition: width 0.4s ease;
+}
+
+.execution-actions { display: flex; gap: 10px; }
+
+.kp-status-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 0; border-bottom: 1px solid var(--border);
+  font-size: 0.875rem; color: var(--text-muted);
+}
+.kp-status-row:last-child { border-bottom: none; }
+
+.kp-status-row--visited { color: var(--primary); }
+
+.kp-status-icon { font-size: 1rem; width: 18px; text-align: center; }

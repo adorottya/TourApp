@@ -14,7 +14,6 @@ func To(target string) gin.HandlerFunc {
 	}
 	rp := httputil.NewSingleHostReverseProxy(targetURL)
 	return func(c *gin.Context) {
-		c.Request.URL.Path = c.Param("path")
 		rp.ServeHTTP(c.Writer, c.Request)
 	}
 }

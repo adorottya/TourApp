@@ -44,6 +44,7 @@ services:
       JWT_SECRET: ${JWT_SECRET:-secret}
     depends_on:
       - postgres-stakeholders
+    dns_search: "."
     networks:
       - tourapp-net
 
@@ -54,6 +55,7 @@ services:
       GRPC_PORT: 9092
     depends_on:
       - mongo-tours
+    dns_search: "."
     networks:
       - tourapp-net
 
@@ -65,6 +67,7 @@ services:
       FOLLOWER_SERVICE_URL: http://follower:8084
     depends_on:
       - mongo-blogs
+    dns_search: "."
     networks:
       - tourapp-net
 
@@ -76,6 +79,7 @@ services:
       NEO4J_PASSWORD: password
     depends_on:
       - neo4j
+    dns_search: "."
     networks:
       - tourapp-net
 
@@ -95,6 +99,7 @@ services:
       - tours
       - blogs
       - follower
+    dns_search: "."
     networks:
       - tourapp-net
 

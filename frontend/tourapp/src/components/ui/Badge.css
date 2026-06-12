@@ -1,0 +1,13 @@
+.badge {
+  display: inline-block;
+  padding: 2px 9px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.badge--default { background: var(--border); color: var(--text-muted); }
+.badge--primary { background: var(--primary); color: #fff; }
+.badge--accent { background: var(--accent); color: #fff; }
+.badge--danger { background: var(--danger); color: #fff; }
+.badge--muted { background: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }

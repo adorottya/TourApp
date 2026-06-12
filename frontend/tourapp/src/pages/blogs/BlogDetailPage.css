@@ -1,0 +1,42 @@
+.blog-detail { display: flex; flex-direction: column; gap: 24px; }
+
+.blog-detail__header { display: flex; flex-direction: column; gap: 10px; }
+
+.blog-detail__title { font-size: 2rem; color: var(--text); }
+
+.blog-detail__meta {
+  display: flex; gap: 10px; align-items: center;
+  color: var(--text-muted); font-size: 0.875rem; flex-wrap: wrap;
+}
+
+.blog-detail__gallery {
+  display: flex; gap: 12px; overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.blog-detail__img {
+  height: 220px; width: auto; flex-shrink: 0;
+  border-radius: var(--radius); object-fit: cover;
+  border: 1px solid var(--border);
+}
+
+.blog-detail__content { font-size: 0.95rem; }
+
+.blog-detail__comments { display: flex; flex-direction: column; gap: 14px; }
+.blog-detail__comments h2 { margin-bottom: 4px; }
+
+.comment-card { padding: 14px; }
+
+.comment-meta {
+  display: flex; gap: 10px; align-items: baseline;
+  margin-bottom: 6px; font-size: 0.85rem; color: var(--text-muted);
+}
+.comment-meta strong { color: var(--text); }
+
+.comment-form { display: flex; flex-direction: column; gap: 10px; }
+
+.comment-gate {
+  color: var(--text-muted); font-size: 0.875rem;
+  padding: 12px; background: var(--surface);
+  border: 1px dashed var(--border); border-radius: var(--radius);
+}

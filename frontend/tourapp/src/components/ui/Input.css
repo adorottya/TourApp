@@ -1,0 +1,20 @@
+.input-group { display: flex; flex-direction: column; gap: 5px; }
+
+.input-label { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); }
+
+.input-field {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.15s;
+}
+.input-field:focus { border-color: var(--primary); }
+.input-field--error { border-color: var(--danger); }
+
+.input-error { font-size: 0.8rem; color: var(--danger); }

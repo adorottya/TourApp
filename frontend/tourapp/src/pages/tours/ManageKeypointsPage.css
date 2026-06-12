@@ -1,0 +1,28 @@
+.kp-layout {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 800px) { .kp-layout { grid-template-columns: 1fr; } }
+
+.kp-map-col { display: flex; flex-direction: column; gap: 14px; }
+
+.kp-add-form { }
+.kp-form-fields { display: flex; flex-direction: column; gap: 12px; margin-top: 12px; }
+
+.kp-hint { color: var(--text-muted); font-size: 0.875rem; padding: 12px; text-align: center; }
+
+.kp-list-col { display: flex; flex-direction: column; gap: 10px; }
+.kp-list-col h2 { margin-bottom: 4px; }
+
+.kp-row { padding: 12px; }
+.kp-row__header { display: flex; align-items: center; gap: 8px; }
+
+.kp-order {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+}

@@ -1,0 +1,13 @@
+.my-tours-list { display: flex; flex-direction: column; gap: 14px; }
+
+.my-tour-row { display: flex; flex-direction: column; gap: 14px; }
+
+.my-tour-row__main {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+}
+
+.my-tour-row__meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+
+.my-tour-price { font-weight: 600; color: var(--primary); font-size: 0.95rem; }
+
+.my-tour-row__actions { display: flex; gap: 8px; }

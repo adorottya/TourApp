@@ -1,0 +1,20 @@
+.tour-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.tour-card { display: flex; flex-direction: column; gap: 10px; }
+
+.tour-card__header { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+.tour-card__header h3 { color: var(--text); font-size: 1rem; }
+.tour-card__header a { text-decoration: none; flex: 1; }
+.tour-card__header a:hover h3 { color: var(--primary); }
+
+.tour-card__desc { color: var(--text-muted); font-size: 0.875rem; line-height: 1.5; flex: 1; }
+
+.tour-card__tags { display: flex; gap: 6px; flex-wrap: wrap; }
+
+.tour-card__footer { display: flex; justify-content: space-between; align-items: center; margin-top: 4px; }
+
+.tour-card__price { font-weight: 600; color: var(--primary); font-size: 1rem; }

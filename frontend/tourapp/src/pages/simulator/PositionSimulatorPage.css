@@ -1,0 +1,44 @@
+.simulator-layout {
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (max-width: 700px) { .simulator-layout { grid-template-columns: 1fr; } }
+
+.simulator-map { }
+.simulator-panel { display: flex; flex-direction: column; gap: 14px; }
+
+.simulator-current, .simulator-pending { display: flex; flex-direction: column; gap: 4px; }
+.simulator-current h3, .simulator-pending h3 { margin-bottom: 6px; }
+
+.coord { font-size: 0.95rem; font-weight: 500; color: var(--text); font-variant-numeric: tabular-nums; }
+
+.record-btn {
+  margin-top: 10px;
+  width: 100%;
+  padding: 9px;
+  background: var(--primary); color: #fff;
+  border: none; border-radius: var(--radius);
+  cursor: pointer; font-size: 0.875rem; font-weight: 500;
+  transition: background 0.15s;
+}
+.record-btn:hover:not(:disabled) { background: var(--primary-hover); }
+.record-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.cancel-btn {
+  margin-top: 6px;
+  width: 100%;
+  padding: 7px;
+  background: none; border: 1px solid var(--border);
+  border-radius: var(--radius); cursor: pointer;
+  font-size: 0.825rem; color: var(--text-muted);
+}
+.cancel-btn:hover { background: var(--border); }
+
+.simulator-status {
+  font-size: 0.875rem; color: var(--primary);
+  padding: 10px; background: rgba(92,107,58,0.08);
+  border-radius: var(--radius); border: 1px solid var(--border);
+}

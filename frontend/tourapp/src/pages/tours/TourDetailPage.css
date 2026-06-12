@@ -1,0 +1,34 @@
+.tour-detail {
+  display: grid;
+  grid-template-columns: 1fr 1.2fr;
+  gap: 24px;
+  align-items: start;
+}
+
+@media (max-width: 768px) {
+  .tour-detail { grid-template-columns: 1fr; }
+}
+
+.tour-detail__info { display: flex; flex-direction: column; gap: 16px; }
+
+.tour-detail__badges { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 4px; }
+
+.tour-detail__tags { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+.tour-detail__price { display: flex; align-items: baseline; gap: 8px; margin-top: 14px; }
+.tour-detail__price-label { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.04em; }
+.tour-detail__price-value { font-size: 1.3rem; font-weight: 700; color: var(--primary); }
+
+.tour-detail__keypoints { display: flex; flex-direction: column; gap: 10px; }
+.tour-detail__keypoints h2 { margin-bottom: 4px; }
+
+.tour-detail__map { position: sticky; top: 80px; }
+
+.keypoint-item { padding: 12px; }
+.keypoint-item__header { display: flex; align-items: center; gap: 10px; }
+.keypoint-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  background: var(--primary); color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.75rem; font-weight: 700; flex-shrink: 0;
+}

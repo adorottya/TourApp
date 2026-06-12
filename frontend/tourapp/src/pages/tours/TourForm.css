@@ -1,0 +1,29 @@
+.tour-form { display: flex; flex-direction: column; gap: 18px; }
+
+.tour-select {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font);
+  font-size: 0.9rem;
+  outline: none;
+  cursor: pointer;
+}
+.tour-select:focus { border-color: var(--primary); }
+
+.tag-input-row { display: flex; gap: 8px; align-items: center; }
+.tag-input-row .input-field { flex: 1; }
+
+.tag-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+
+.tag-chip { display: inline-flex; align-items: center; gap: 4px; }
+
+.tag-chip__remove {
+  background: none; border: none; cursor: pointer;
+  color: var(--text-muted); font-size: 0.7rem; padding: 0 2px;
+  line-height: 1;
+}
+.tag-chip__remove:hover { color: var(--danger); }
