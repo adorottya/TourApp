@@ -9,10 +9,13 @@ import (
 	"stakeholders-service/db"
 	"stakeholders-service/handlers"
 	"stakeholders-service/middleware"
+	grpcserver "stakeholders-service/grpc"
 )
 
 func main() {
 	db.Connect()
+
+	go grpcserver.StartServer(":9091")
 
 	r := gin.Default()
 

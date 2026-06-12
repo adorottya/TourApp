@@ -1,0 +1,108 @@
+services:
+  postgres-stakeholders:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: stakeholders
+      POSTGRES_PASSWORD: stakeholders
+      POSTGRES_DB: stakeholders
+    volumes:
+      - postgres-stakeholders-data:/var/lib/postgresql/data
+    networks:
+      - tourapp-net
+
+  mongo-tours:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_DATABASE: tours
+    volumes:
+      - mongo-tours-data:/data/db
+    networks:
+      - tourapp-net
+
+  mongo-blogs:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_DATABASE: blog
+    volumes:
+      - mongo-blogs-data:/data/db
+    networks:
+      - tourapp-net
+
+  neo4j:
+    image: neo4j:5
+    environment:
+      NEO4J_AUTH: neo4j/password
+    volumes:
+      - neo4j-data:/data
+    networks:
+      - tourapp-net
+
+  stakeholders:
+    build: ./backend/stakeholders
+    environment:
+      POSTGRES_DSN: host=postgres-stakeholders port=5432 user=stakeholders password=stakeholders dbname=stakeholders sslmode=disable
+      JWT_SECRET: ${JWT_SECRET:-secret}
+    depends_on:
+      - postgres-stakeholders
+    networks:
+      - tourapp-net
+
+  tours:
+    build: ./backend/tours
+    environment:
+      MONGO_URI: mongodb://mongo-tours:27017/tours
+      GRPC_PORT: 9092
+    depends_on:
+      - mongo-tours
+    networks:
+      - tourapp-net
+
+  blogs:
+    build: ./backend/blogs
+    environment:
+      MONGO_URL: mongodb://mongo-blogs:27017
+      MONGO_DB: blog
+      FOLLOWER_SERVICE_URL: http://follower:8084
+    depends_on:
+      - mongo-blogs
+    networks:
+      - tourapp-net
+
+  follower:
+    build: ./backend/follower
+    environment:
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: password
+    depends_on:
+      - neo4j
+    networks:
+      - tourapp-net
+
+  gateway:
+    build: ./gateway
+    ports:
+      - "8080:8080"
+    environment:
+      STAKEHOLDERS_GRPC_ADDR: stakeholders:9091
+      STAKEHOLDERS_URL: http://stakeholders:8081
+      TOURS_GRPC_ADDR: tours:9092
+      TOURS_URL: http://tours:8082
+      BLOGS_URL: http://blogs:8083
+      FOLLOWER_URL: http://follower:8084
+    depends_on:
+      - stakeholders
+      - tours
+      - blogs
+      - follower
+    networks:
+      - tourapp-net
+
+volumes:
+  postgres-stakeholders-data:
+  mongo-tours-data:
+  mongo-blogs-data:
+  neo4j-data:
+
+networks:
+  tourapp-net:
