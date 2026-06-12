@@ -1,0 +1,71 @@
+services:
+  postgres-stakeholders:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: stakeholders
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-stakeholders-data:/var/lib/postgresql/data
+    networks:
+      - backend-net
+
+  mongo-tours:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_DATABASE: tours
+    volumes:
+      - mongo-tours-data:/data/db
+    networks:
+      - backend-net
+
+  mongo-blogs:
+    image: mongo:8
+    environment:
+      MONGO_INITDB_DATABASE: blog
+    volumes:
+      - mongo-blogs-data:/data/db
+    networks:
+      - backend-net
+
+  stakeholders:
+    build: ./stakeholders
+    ports:
+      - "8081:8081"
+    environment:
+      DATABASE_URL: postgres://postgres:postgres@postgres-stakeholders:5432/stakeholders
+    depends_on:
+      - postgres-stakeholders
+    networks:
+      - backend-net
+
+  tours:
+    build: ./tours
+    ports:
+      - "8082:8082"
+    environment:
+      SPRING_DATA_MONGODB_URI: mongodb://mongo-tours:27017/tours
+    depends_on:
+      - mongo-tours
+    networks:
+      - backend-net
+
+  blogs:
+    build: ./blogs
+    ports:
+      - "8083:8083"
+    environment:
+      MONGO_URL: mongodb://mongo-blogs:27017
+      MONGO_DB: blog
+    depends_on:
+      - mongo-blogs
+    networks:
+      - backend-net
+
+volumes:
+  postgres-stakeholders-data:
+  mongo-tours-data:
+  mongo-blogs-data:
+
+networks:
+  backend-net:
