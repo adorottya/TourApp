@@ -52,6 +52,7 @@ public class PurchaseService {
                     .price(tour.getPrice())
                     .build());
         }
+        cart.setTotalPrice(recalculateTotal(cart));
         cart.setUpdatedAt(LocalDateTime.now());
         return cartRepository.save(cart);
     }
@@ -60,6 +61,7 @@ public class PurchaseService {
         Cart cart = cartRepository.findByTouristId(touristId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Cart not found"));
         cart.getItems().removeIf(i -> i.getTourId().equals(tourId));
+        cart.setTotalPrice(recalculateTotal(cart));
         cart.setUpdatedAt(LocalDateTime.now());
         return cartRepository.save(cart);
     }
@@ -84,9 +86,14 @@ public class PurchaseService {
         }
 
         cart.getItems().clear();
+        cart.setTotalPrice(0.0);
         cart.setUpdatedAt(LocalDateTime.now());
         cartRepository.save(cart);
 
         return tokens;
+    }
+
+    private double recalculateTotal(Cart cart) {
+        return cart.getItems().stream().mapToDouble(OrderItem::getPrice).sum();
     }
 }

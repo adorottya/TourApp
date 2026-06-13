@@ -18,10 +18,11 @@ async def create_post(
 @router.get("", response_model=list[BlogResponse])
 async def list_posts(
     request: Request,
+    x_user_id: str = Header(...),
     page: int = Query(1, ge=1),
     size: int = Query(10, ge=1, le=100),
 ):
-    return await svc.list_posts(request.app.state.db, page, size)
+    return await svc.list_posts(request.app.state.db, x_user_id, page, size)
 
 
 @router.get("/user/{user_id}", response_model=list[BlogResponse])

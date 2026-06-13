@@ -22,5 +22,6 @@ public class Cart {
     private String touristId;
     @Builder.Default
     private List<OrderItem> items = new ArrayList<>();
+    private double totalPrice;
     private LocalDateTime updatedAt;
 }

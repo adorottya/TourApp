@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -31,8 +33,6 @@ func main() {
 	}
 	defer tourClient.Close()
 
-	_ = tourClient // used in checkout handler when implemented
-
 	stakeholdersURL := serviceURL("STAKEHOLDERS_URL", "http://localhost:8081")
 	toursURL := serviceURL("TOURS_URL", "http://localhost:8082")
 	blogsURL := serviceURL("BLOGS_URL", "http://blogs:8083")
@@ -55,9 +55,54 @@ func main() {
 			protected.Any("/users/*path", proxy.To(stakeholdersURL))
 			protected.Any("/tours", proxy.To(toursURL))
 			protected.Any("/tours/*path", proxy.To(toursURL))
-			// cart, executions and position are all served by the tour service
-			protected.Any("/cart", proxy.To(toursURL))
-			protected.Any("/cart/*path", proxy.To(toursURL))
+
+			// Cart — explicit routes so checkout can be intercepted for gRPC validation
+			protected.GET("/cart", proxy.To(toursURL))
+			protected.POST("/cart/items", proxy.To(toursURL))
+			protected.DELETE("/cart/items/:tourId", proxy.To(toursURL))
+			// Checkout: validate every tour in the cart is still PUBLISHED via gRPC
+			// before forwarding to the purchase service (second gRPC call alongside
+			// the ValidateToken call that runs on every request).
+			protected.POST("/cart/checkout", func(c *gin.Context) {
+				userID := c.GetHeader("X-User-Id")
+
+				// Fetch the cart from the tours service
+				cartReq, _ := http.NewRequest(http.MethodGet, toursURL+"/api/cart", nil)
+				cartReq.Header.Set("X-User-Id", userID)
+				cartResp, err := http.DefaultClient.Do(cartReq)
+				if err != nil {
+					c.JSON(http.StatusBadGateway, gin.H{"error": "cart service unavailable"})
+					return
+				}
+				defer cartResp.Body.Close()
+
+				var cart struct {
+					Items []struct {
+						TourId string `json:"tourId"`
+					} `json:"items"`
+				}
+				if err := json.NewDecoder(cartResp.Body).Decode(&cart); err != nil {
+					c.JSON(http.StatusBadGateway, gin.H{"error": "failed to read cart"})
+					return
+				}
+
+				// Validate each tour via gRPC GetTour (RPC call #2)
+				for _, item := range cart.Items {
+					resp, err := tourClient.GetTour(item.TourId)
+					if err != nil || !resp.Found {
+						c.JSON(http.StatusNotFound, gin.H{"error": "tour " + item.TourId + " not found"})
+						return
+					}
+					if resp.Status != "PUBLISHED" {
+						c.JSON(http.StatusBadRequest, gin.H{"error": "tour " + item.TourId + " is no longer published"})
+						return
+					}
+				}
+
+				// All tours valid — forward to purchase service
+				proxy.To(toursURL)(c)
+			})
+
 			protected.Any("/executions", proxy.To(toursURL))
 			protected.Any("/executions/*path", proxy.To(toursURL))
 			protected.Any("/position", proxy.To(toursURL))

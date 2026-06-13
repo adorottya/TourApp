@@ -36,6 +36,12 @@ async def get_all(db: AsyncIOMotorDatabase, page: int, size: int) -> list[BlogRe
     return [doc_to_blog(doc) async for doc in cursor]
 
 
+async def get_by_authors(db: AsyncIOMotorDatabase, author_ids: list[str], page: int, size: int) -> list[BlogResponse]:
+    skip = (page - 1) * size
+    cursor = db["blog_posts"].find({"authorId": {"$in": author_ids}}).sort("createdAt", -1).skip(skip).limit(size)
+    return [doc_to_blog(doc) async for doc in cursor]
+
+
 async def get_by_author(db: AsyncIOMotorDatabase, author_id: str) -> list[BlogResponse]:
     cursor = db["blog_posts"].find({"authorId": author_id}).sort("createdAt", -1)
     return [doc_to_blog(doc) async for doc in cursor]
