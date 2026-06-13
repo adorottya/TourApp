@@ -10,4 +10,9 @@
 
 .my-tour-price { font-weight: 600; color: var(--primary); font-size: 0.95rem; }
 
-.my-tour-row__actions { display: flex; gap: 8px; }
+.my-tour-row__actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+.my-tour-publish { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.my-tour-publish .input-group { margin: 0; }
+.my-tour-publish .input-field { width: 96px; padding: 6px 10px; }
+.my-tour-publish-error { flex-basis: 100%; color: var(--danger); font-size: 0.8rem; }

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Marker, Popup } from 'react-leaflet';
+import { Circle, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import {
   abandonExecution, checkKeypoints, completeExecution,
@@ -9,6 +9,7 @@ import { getLatestPosition } from '../../api/position';
 import { getKeypoints, getTour } from '../../api/tours';
 import { PageShell } from '../../components/layout/PageShell';
 import { KeypointMarker } from '../../components/map/KeypointMarker';
+import { KeypointPath } from '../../components/map/KeypointPath';
 import { LeafletMap } from '../../components/map/LeafletMap';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -152,6 +153,18 @@ export function TourExecutionPage() {
       <div className="execution-layout">
         <div className="execution-map">
           <LeafletMap center={mapCenter} zoom={14} height="520px">
+            <KeypointPath keypoints={keypoints} />
+            {keypoints.map(kp => (
+              <Circle
+                key={`ring-${kp.id}`}
+                center={[kp.latitude, kp.longitude]}
+                radius={50}
+                pathOptions={visitedIds.includes(kp.id)
+                  ? { color: '#4a7c4e', fillColor: '#4a7c4e', fillOpacity: 0.06, weight: 1.5, dashArray: '4 5' }
+                  : { color: '#b85c38', fillColor: '#b85c38', fillOpacity: 0.06, weight: 1.5, dashArray: '4 5' }
+                }
+              />
+            ))}
             {keypoints.map(kp => (
               <KeypointMarker key={kp.id} keypoint={kp} visited={visitedIds.includes(kp.id)} />
             ))}

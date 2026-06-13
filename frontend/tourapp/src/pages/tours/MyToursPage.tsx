@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { myTours } from '../../api/tours';
+import { myTours, updateTour } from '../../api/tours';
 import { PageShell } from '../../components/layout/PageShell';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
+import { Input } from '../../components/ui/Input';
 import { Spinner } from '../../components/ui/Spinner';
 import type { Tour } from '../../types/tour';
 import './MyToursPage.css';
@@ -19,10 +20,32 @@ export function MyToursPage() {
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [priceInputs, setPriceInputs] = useState<Record<string, string>>({});
+  const [publishingId, setPublishingId] = useState<string | null>(null);
+  const [publishError, setPublishError] = useState<Record<string, string>>({});
 
   useEffect(() => {
     myTours().then(setTours).catch(e => setError(e.message)).finally(() => setLoading(false));
   }, []);
+
+  async function handlePublish(id: string) {
+    const raw = priceInputs[id] ?? '';
+    const price = parseFloat(raw);
+    if (raw.trim() === '' || isNaN(price) || price < 0) {
+      setPublishError(p => ({ ...p, [id]: 'Enter a valid price (0 or more)' }));
+      return;
+    }
+    setPublishError(p => ({ ...p, [id]: '' }));
+    setPublishingId(id);
+    try {
+      const updated = await updateTour(id, { status: 'PUBLISHED', price });
+      setTours(prev => prev.map(t => (t.id === id ? updated : t)));
+    } catch (err: unknown) {
+      setPublishError(p => ({ ...p, [id]: err instanceof Error ? err.message : 'Failed to publish' }));
+    } finally {
+      setPublishingId(null);
+    }
+  }
 
   return (
     <PageShell title="My Tours" actions={<Link to="/my-tours/create"><Button size="sm">+ New Tour</Button></Link>}>
@@ -52,6 +75,29 @@ export function MyToursPage() {
                 <Link to={`/my-tours/${t.id}/edit`}>
                   <Button variant="secondary" size="sm">Edit</Button>
                 </Link>
+                {t.status === 'DRAFT' && (
+                  <div className="my-tour-publish">
+                    <Input
+                      id={`price-${t.id}`}
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      placeholder="Price"
+                      value={priceInputs[t.id] ?? ''}
+                      onChange={e => setPriceInputs(p => ({ ...p, [t.id]: e.target.value }))}
+                    />
+                    <Button
+                      size="sm"
+                      disabled={publishingId === t.id}
+                      onClick={() => handlePublish(t.id)}
+                    >
+                      {publishingId === t.id ? '…' : 'Publish'}
+                    </Button>
+                    {publishError[t.id] && (
+                      <span className="my-tour-publish-error">{publishError[t.id]}</span>
+                    )}
+                  </div>
+                )}
               </div>
             </Card>
           ))}

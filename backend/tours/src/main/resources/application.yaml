@@ -1,9 +1,12 @@
 spring:
   application:
     name: tours
-  data:
-    mongodb:
-      uri: ${MONGO_URI:mongodb://localhost:27017/tours}
+  # Spring Boot 4 moved the core MongoDB driver config out of `spring.data.mongodb`
+  # into the new `spring-boot-mongodb` module, which binds the `spring.mongodb` prefix.
+  # Using the old `spring.data.mongodb.uri` here is silently ignored and the client
+  # falls back to its localhost:27017 default.
+  mongodb:
+    uri: ${MONGO_URI:mongodb://localhost:27017/tours}
 
 server:
   port: 8082

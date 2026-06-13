@@ -25,6 +25,12 @@ func To(target string) gin.HandlerFunc {
 	}
 	rp := httputil.NewSingleHostReverseProxy(targetURL)
 	rp.Transport = transport
+	rp.ErrorHandler = func(w http.ResponseWriter, r *http.Request, err error) {
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("Access-Control-Allow-Origin", "*")
+		w.WriteHeader(http.StatusBadGateway)
+		w.Write([]byte(`{"error":"service unavailable","details":"` + target + `"}`))
+	}
 	return func(c *gin.Context) {
 		rp.ServeHTTP(c.Writer, c.Request)
 	}

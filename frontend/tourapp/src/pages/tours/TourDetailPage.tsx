@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { addToCart } from '../../api/cart';
+import { addToCart, getCart } from '../../api/cart';
 import { getKeypoints, getTour } from '../../api/tours';
 import { PageShell } from '../../components/layout/PageShell';
 import { KeypointMarker } from '../../components/map/KeypointMarker';
+import { KeypointPath } from '../../components/map/KeypointPath';
 import { LeafletMap } from '../../components/map/LeafletMap';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -24,11 +25,17 @@ export function TourDetailPage() {
 
   useEffect(() => {
     if (!id) return;
-    Promise.all([getTour(id), getKeypoints(id)])
-      .then(([t, kps]) => { setTour(t); setKeypoints(kps); })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [id]);
+    const fetches: Promise<unknown>[] = [
+      getTour(id).then(t => setTour(t)),
+      getKeypoints(id).then(kps => setKeypoints(kps)),
+    ];
+    if (isTourist) {
+      fetches.push(getCart().then(cart => {
+        if (cart.items.some(i => i.tourId === id)) setAdded(true);
+      }).catch(() => {}));
+    }
+    Promise.all(fetches).catch(() => {}).finally(() => setLoading(false));
+  }, [id, isTourist]);
 
   async function handleAddToCart() {
     if (!id) return;
@@ -88,6 +95,7 @@ export function TourDetailPage() {
 
         <div className="tour-detail__map">
           <LeafletMap center={mapCenter} zoom={13} height="450px">
+            <KeypointPath keypoints={keypoints} />
             {keypoints.map(kp => <KeypointMarker key={kp.id} keypoint={kp} />)}
           </LeafletMap>
         </div>

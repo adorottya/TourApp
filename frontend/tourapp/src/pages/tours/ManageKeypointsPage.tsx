@@ -5,6 +5,7 @@ import L from 'leaflet';
 import { addKeypoint, deleteKeypoint, getKeypoints, getTour } from '../../api/tours';
 import { PageShell } from '../../components/layout/PageShell';
 import { LeafletMap } from '../../components/map/LeafletMap';
+import { KeypointPath } from '../../components/map/KeypointPath';
 import { Button } from '../../components/ui/Button';
 import { Card } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
@@ -85,6 +86,7 @@ export function ManageKeypointsPage() {
       <div className="kp-layout">
         <div className="kp-map-col">
           <LeafletMap center={mapCenter} zoom={13} height="440px" onClick={handleMapClick}>
+            <KeypointPath keypoints={keypoints} />
             {keypoints.map(kp => (
               <Marker key={kp.id} position={[kp.latitude, kp.longitude]}>
                 <Popup><strong>{kp.orderIndex}. {kp.name}</strong></Popup>

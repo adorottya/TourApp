@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { addToCart } from '../../api/cart';
+import { addToCart, getCart } from '../../api/cart';
 import { listPublished } from '../../api/tours';
 import { PageShell } from '../../components/layout/PageShell';
 import { Badge } from '../../components/ui/Badge';
@@ -26,8 +26,23 @@ export function TourListPage() {
   const [addedIds, setAddedIds] = useState<Set<string>>(new Set());
 
   useEffect(() => {
-    listPublished().then(setTours).catch(e => setError(e.message)).finally(() => setLoading(false));
-  }, []);
+    const fetchData = async () => {
+      try {
+        const [fetchedTours] = await Promise.all([
+          listPublished(),
+          isTourist
+            ? getCart().then(cart => setAddedIds(new Set(cart.items.map(i => i.tourId)))).catch(() => {})
+            : Promise.resolve(),
+        ]);
+        setTours(fetchedTours);
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : 'Failed to load tours');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, [isTourist]);
 
   async function handleAddToCart(tourId: string) {
     setAddingId(tourId);
