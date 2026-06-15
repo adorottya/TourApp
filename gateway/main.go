@@ -44,10 +44,13 @@ func main() {
 
 	api := r.Group("/api")
 	{
-		// public — no auth
-		api.Any("/auth/*path", proxy.To(stakeholdersURL))
+        // public — no auth
+        api.Any("/auth/*path", proxy.To(stakeholdersURL))
+        api.GET("/tours", proxy.To(toursURL))
+        api.GET("/tours/:id", proxy.To(toursURL))
+        api.GET("/tours/:id/keypoints", proxy.To(toursURL))
 
-		// protected
+        // protected
 		protected := api.Group("")
 		protected.Use(middleware.Auth(authClient))
 		{
@@ -58,6 +61,7 @@ func main() {
 
 			// Cart — explicit routes so checkout can be intercepted for gRPC validation
 			protected.GET("/cart", proxy.To(toursURL))
+			protected.GET("/cart/tokens", proxy.To(toursURL))
 			protected.POST("/cart/items", proxy.To(toursURL))
 			protected.DELETE("/cart/items/:tourId", proxy.To(toursURL))
 			// Checkout: validate every tour in the cart is still PUBLISHED via gRPC

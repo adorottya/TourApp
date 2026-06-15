@@ -8,6 +8,18 @@ import repositories.blog_repository as repo
 from schemas.blog_schema import BlogCreate, BlogResponse, BlogUpdate
 
 FOLLOWER_SERVICE_URL = os.getenv("FOLLOWER_SERVICE_URL", "http://localhost:8084")
+TOURS_SERVICE_URL = os.getenv("TOURS_SERVICE_URL", "http://localhost:8082")
+
+
+async def _published_guide_ids() -> set[str]:
+    async with httpx.AsyncClient() as client:
+        try:
+            resp = await client.get(f"{TOURS_SERVICE_URL}/api/tours", timeout=5.0)
+            if resp.status_code == 200:
+                return {str(t["guideId"]) for t in resp.json()}
+        except httpx.RequestError:
+            pass
+    return set()
 
 
 async def create_post(db: AsyncIOMotorDatabase, author_id: str, data: BlogCreate) -> BlogResponse:
@@ -22,7 +34,7 @@ async def get_post(db: AsyncIOMotorDatabase, post_id: str) -> BlogResponse:
 
 
 async def list_posts(db: AsyncIOMotorDatabase, user_id: str, page: int, size: int) -> list[BlogResponse]:
-    # Return only blogs from users the current user follows (Req 10)
+    # Blogs from followed users plus the current user's own posts
     async with httpx.AsyncClient() as client:
         try:
             resp = await client.get(
@@ -34,9 +46,8 @@ async def list_posts(db: AsyncIOMotorDatabase, user_id: str, page: int, size: in
         except httpx.RequestError:
             following_ids = []
 
-    if not following_ids:
-        return []
-    return await repo.get_by_authors(db, following_ids, page, size)
+    author_ids = list({user_id, *following_ids, *await _published_guide_ids()})
+    return await repo.get_by_authors(db, author_ids, page, size)
 
 
 async def get_user_posts(db: AsyncIOMotorDatabase, user_id: str) -> list[BlogResponse]:

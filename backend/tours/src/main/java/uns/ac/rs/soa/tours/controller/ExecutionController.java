@@ -28,6 +28,16 @@ public class ExecutionController {
         return ResponseEntity.ok(executionService.getActive(userId));
     }
 
+    @PostMapping("/{id}/track")
+    public ResponseEntity<Map<String, Object>> track(
+            @PathVariable String id,
+            @RequestHeader("X-User-Id") String userId,
+            @RequestBody Map<String, Object> body) {
+        double lat = ((Number) body.get("latitude")).doubleValue();
+        double lon = ((Number) body.get("longitude")).doubleValue();
+        return ResponseEntity.ok(executionService.trackProgress(id, userId, lat, lon));
+    }
+
     @GetMapping("/{id}/check-keypoints")
     public ResponseEntity<Map<String, Object>> checkKeypoints(
             @PathVariable String id,

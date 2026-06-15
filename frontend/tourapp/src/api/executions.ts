@@ -9,6 +9,13 @@ export function getActiveExecution(): Promise<TourExecution> {
   return apiFetch('/api/executions/active');
 }
 
+export function trackExecution(id: string, latitude: number, longitude: number): Promise<KeypointCheckResult> {
+  return apiFetch(`/api/executions/${id}/track`, {
+    method: 'POST',
+    body: JSON.stringify({ latitude, longitude }),
+  });
+}
+
 export function checkKeypoints(id: string): Promise<KeypointCheckResult> {
   return apiFetch(`/api/executions/${id}/check-keypoints`);
 }

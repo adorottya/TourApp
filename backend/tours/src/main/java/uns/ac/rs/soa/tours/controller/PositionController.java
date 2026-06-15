@@ -17,10 +17,10 @@ public class PositionController {
     private final PositionService positionService;
 
     @PostMapping("/record")
-    public ResponseEntity<TouristPosition> record(
+    public ResponseEntity<Map<String, Object>> record(
             @RequestHeader("X-User-Id") String userId,
             @RequestBody Map<String, Object> body) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(positionService.record(userId, body));
+        return ResponseEntity.status(HttpStatus.CREATED).body(positionService.recordWithExecution(userId, body));
     }
 
     @GetMapping("/latest")

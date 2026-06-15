@@ -53,6 +53,14 @@ export function MyToursPage() {
       {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
       {!loading && !error && (
         <div className="my-tours-list">
+          {tours.some(t => t.status === 'DRAFT') && (
+            <Card className="my-tours-hint">
+              <p>
+                <strong>Draft tours are private.</strong> Tourists only see tours after you publish them
+                (set a price and click Publish).
+              </p>
+            </Card>
+          )}
           {tours.length === 0 && <p style={{ color: 'var(--text-muted)' }}>You haven't created any tours yet.</p>}
           {tours.map(t => (
             <Card key={t.id} className="my-tour-row">

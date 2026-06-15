@@ -23,6 +23,11 @@ public class CartController {
         return ResponseEntity.ok(purchaseService.getCart(userId));
     }
 
+    @GetMapping("/tokens")
+    public ResponseEntity<List<TourPurchaseToken>> listTokens(@RequestHeader("X-User-Id") String userId) {
+        return ResponseEntity.ok(purchaseService.listTokens(userId));
+    }
+
     @PostMapping("/items")
     public ResponseEntity<Cart> addItem(
             @RequestHeader("X-User-Id") String userId,

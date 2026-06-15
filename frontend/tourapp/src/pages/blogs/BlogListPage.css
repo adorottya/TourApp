@@ -26,3 +26,34 @@
   gap: 16px;
   margin-top: 32px;
 }
+
+.blog-empty-hint {
+  margin-bottom: 20px;
+  padding: 18px;
+  line-height: 1.6;
+}
+
+.blog-recommendations {
+  margin-bottom: 20px;
+  padding: 16px;
+}
+
+.blog-recommendations h3 {
+  font-size: 0.95rem;
+  margin-bottom: 10px;
+}
+
+.blog-recommendations__list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.blog-recommendations__item {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 4px 10px;
+}

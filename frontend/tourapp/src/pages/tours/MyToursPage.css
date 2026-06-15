@@ -1,5 +1,12 @@
 .my-tours-list { display: flex; flex-direction: column; gap: 14px; }
 
+.my-tours-hint {
+  padding: 14px 16px;
+  background: var(--surface);
+  line-height: 1.5;
+  font-size: 0.9rem;
+}
+
 .my-tour-row { display: flex; flex-direction: column; gap: 14px; }
 
 .my-tour-row__main {

@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+package tour;
+
+option go_package = "gateway/gen/tour";
+
+service TourService {
+  rpc GetTour(GetTourRequest) returns (GetTourResponse);
+}
+
+message GetTourRequest {
+  string tour_id = 1;
+}
+
+message GetTourResponse {
+  string tour_id = 1;
+  string name = 2;
+  string guide_id = 3;
+  string status = 4;
+  double price = 5;
+  bool found = 6;
+}

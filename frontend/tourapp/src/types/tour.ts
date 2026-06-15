@@ -44,5 +44,4 @@ export interface CreateKeypointRequest {
   latitude: number;
   longitude: number;
   image?: string;
-  orderIndex: number;
 }

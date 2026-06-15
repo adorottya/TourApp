@@ -60,7 +60,14 @@ export function TourListPage() {
       {error && <p style={{ color: 'var(--danger)' }}>{error}</p>}
       {!loading && !error && (
         <div className="tour-grid">
-          {tours.length === 0 && <p style={{ color: 'var(--text-muted)' }}>No published tours.</p>}
+          {tours.length === 0 && (
+            <Card style={{ maxWidth: 560, padding: 24 }}>
+              <p style={{ color: 'var(--text-muted)', lineHeight: 1.6 }}>
+                No published tours yet. Guides must create a tour, add keypoints, then click <strong>Publish</strong> on My Tours.
+                Draft tours are only visible to the guide who created them.
+              </p>
+            </Card>
+          )}
           {tours.map(t => (
             <Card key={t.id} className="tour-card">
               <div className="tour-card__header">

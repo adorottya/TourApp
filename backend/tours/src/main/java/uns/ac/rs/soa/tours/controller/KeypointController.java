@@ -34,6 +34,20 @@ public class KeypointController {
         return ResponseEntity.ok(keypointService.list(tourId));
     }
 
+    @PutMapping("/reorder")
+    public ResponseEntity<List<Keypoint>> reorder(
+            @PathVariable String tourId,
+            @RequestHeader("X-User-Id") String userId,
+            @RequestHeader("X-User-Role") String role,
+            @RequestBody Map<String, Object> body) {
+        if (!"guide".equals(role)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        @SuppressWarnings("unchecked")
+        List<String> keypointIds = (List<String>) body.get("keypointIds");
+        return ResponseEntity.ok(keypointService.reorder(tourId, userId, keypointIds));
+    }
+
     @DeleteMapping("/{keypointId}")
     public ResponseEntity<Void> delete(
             @PathVariable String tourId,

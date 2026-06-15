@@ -42,3 +42,21 @@
   padding: 10px; background: rgba(92,107,58,0.08);
   border-radius: var(--radius); border: 1px solid var(--border);
 }
+
+.simulator-active-tour {
+  margin-bottom: 16px;
+  padding: 16px;
+  line-height: 1.5;
+}
+
+.sim-kp-row {
+  display: flex;
+  gap: 8px;
+  padding: 5px 0;
+  font-size: 0.875rem;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border);
+}
+
+.sim-kp-row:last-child { border-bottom: none; }
+.sim-kp-row--done { color: var(--primary); font-weight: 500; }

@@ -32,3 +32,10 @@ export function addKeypoint(tourId: string, req: CreateKeypointRequest): Promise
 export function deleteKeypoint(tourId: string, keypointId: string): Promise<void> {
   return apiFetch(`/api/tours/${tourId}/keypoints/${keypointId}`, { method: 'DELETE' });
 }
+
+export function reorderKeypoints(tourId: string, keypointIds: string[]): Promise<Keypoint[]> {
+  return apiFetch(`/api/tours/${tourId}/keypoints/reorder`, {
+    method: 'PUT',
+    body: JSON.stringify({ keypointIds }),
+  });
+}

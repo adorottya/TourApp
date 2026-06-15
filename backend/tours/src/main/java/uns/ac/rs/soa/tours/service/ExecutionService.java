@@ -11,12 +11,15 @@ import uns.ac.rs.soa.tours.repository.KeypointRepository;
 import uns.ac.rs.soa.tours.repository.TokenRepository;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class ExecutionService {
+
+    static final double KEYPOINT_RADIUS_METERS = 200.0;
 
     private final ExecutionRepository executionRepository;
     private final TokenRepository tokenRepository;
@@ -46,45 +49,53 @@ public class ExecutionService {
                 .status("ACTIVE")
                 .startedAt(now)
                 .lastActivity(now)
+                .visitedKeypoints(new ArrayList<>())
                 .build();
         return executionRepository.save(execution);
     }
 
-    public Map<String, Object> checkKeypoints(String executionId, String touristId) {
+    public Map<String, Object> trackProgress(String executionId, String touristId, double lat, double lon) {
         TourExecution execution = findActive(executionId, touristId);
+        execution.setLastKnownLat(lat);
+        execution.setLastKnownLong(lon);
 
+        List<String> visited = new ArrayList<>(ensureVisitedList(execution));
         List<Keypoint> keypoints = keypointRepository.findByTourId(execution.getTourId());
-        double lat = execution.getLastKnownLat();
-        double lon = execution.getLastKnownLong();
 
-        boolean anyNewVisited = false;
         for (Keypoint kp : keypoints) {
-            if (!execution.getVisitedKeypoints().contains(kp.getId())) {
+            if (!visited.contains(kp.getId())) {
                 double dist = haversine(lat, lon, kp.getLatitude(), kp.getLongitude());
-                if (dist < 50.0) {
-                    execution.getVisitedKeypoints().add(kp.getId());
-                    anyNewVisited = true;
+                if (dist < KEYPOINT_RADIUS_METERS) {
+                    visited.add(kp.getId());
                 }
             }
         }
 
+        execution.setVisitedKeypoints(visited);
         execution.setLastActivity(LocalDateTime.now());
         executionRepository.save(execution);
 
         return Map.of(
-                "visitedKeypoints", execution.getVisitedKeypoints(),
+                "visitedKeypoints", visited,
                 "totalKeypoints", keypoints.size(),
                 "lastKnownLat", lat,
                 "lastKnownLon", lon
         );
     }
 
-    public TourExecution updatePosition(String executionId, String touristId, double lat, double lon) {
+    public Map<String, Object> checkKeypoints(String executionId, String touristId) {
         TourExecution execution = findActive(executionId, touristId);
-        execution.setLastKnownLat(lat);
-        execution.setLastKnownLong(lon);
-        execution.setLastActivity(LocalDateTime.now());
-        return executionRepository.save(execution);
+        return trackProgress(
+                executionId,
+                touristId,
+                execution.getLastKnownLat(),
+                execution.getLastKnownLong()
+        );
+    }
+
+    public TourExecution updatePosition(String executionId, String touristId, double lat, double lon) {
+        trackProgress(executionId, touristId, lat, lon);
+        return findActive(executionId, touristId);
     }
 
     public TourExecution complete(String executionId, String touristId) {
@@ -106,8 +117,13 @@ public class ExecutionService {
     }
 
     public TourExecution getActive(String touristId) {
-        return executionRepository.findByTouristIdAndStatus(touristId, "ACTIVE")
+        TourExecution execution = executionRepository.findByTouristIdAndStatus(touristId, "ACTIVE")
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "No active execution"));
+        if (execution.getVisitedKeypoints() == null) {
+            execution.setVisitedKeypoints(new ArrayList<>());
+            executionRepository.save(execution);
+        }
+        return execution;
     }
 
     private TourExecution findActive(String executionId, String touristId) {
@@ -120,6 +136,13 @@ public class ExecutionService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Execution is not active");
         }
         return execution;
+    }
+
+    private List<String> ensureVisitedList(TourExecution execution) {
+        if (execution.getVisitedKeypoints() == null) {
+            return new ArrayList<>();
+        }
+        return execution.getVisitedKeypoints();
     }
 
     private double haversine(double lat1, double lon1, double lat2, double lon2) {

@@ -16,3 +16,7 @@ export function removeFromCart(tourId: string): Promise<Cart> {
 export function checkout(): Promise<TourPurchaseToken[]> {
   return apiFetch('/api/cart/checkout', { method: 'POST' });
 }
+
+export function getPurchaseTokens(): Promise<TourPurchaseToken[]> {
+  return apiFetch('/api/cart/tokens');
+}

@@ -84,6 +84,7 @@ services:
       MONGO_URL: mongodb://mongo-blogs:27017
       MONGO_DB: blog
       FOLLOWER_SERVICE_URL: http://follower:8084
+      TOURS_SERVICE_URL: http://tours:8082
     depends_on:
       mongo-blogs:
         condition: service_healthy

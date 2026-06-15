@@ -66,6 +66,10 @@ public class PurchaseService {
         return cartRepository.save(cart);
     }
 
+    public List<TourPurchaseToken> listTokens(String touristId) {
+        return tokenRepository.findByTouristIdOrderByPurchasedAtDesc(touristId);
+    }
+
     public List<TourPurchaseToken> checkout(String touristId) {
         Cart cart = cartRepository.findByTouristId(touristId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cart is empty"));

@@ -18,7 +18,10 @@
 .kp-list-col h2 { margin-bottom: 4px; }
 
 .kp-row { padding: 12px; }
-.kp-row__header { display: flex; align-items: center; gap: 8px; }
+.kp-row__header { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.kp-row__actions { display: flex; gap: 4px; margin-left: auto; }
+
+.kp-order-hint { color: var(--text-muted); font-size: 0.8rem; margin-bottom: 4px; }
 
 .kp-order {
   width: 24px; height: 24px; border-radius: 50%;

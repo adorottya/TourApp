@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
-import { addKeypoint, deleteKeypoint, getKeypoints, getTour } from '../../api/tours';
+import { addKeypoint, deleteKeypoint, getKeypoints, getTour, reorderKeypoints } from '../../api/tours';
 import { PageShell } from '../../components/layout/PageShell';
 import { LeafletMap } from '../../components/map/LeafletMap';
 import { KeypointPath } from '../../components/map/KeypointPath';
@@ -27,14 +27,18 @@ export function ManageKeypointsPage() {
   const [keypoints, setKeypoints] = useState<Keypoint[]>([]);
   const [loading, setLoading] = useState(true);
   const [selected, setSelected] = useState<{ lat: number; lon: number } | null>(null);
-  const [form, setForm] = useState({ name: '', description: '', image: '', orderIndex: '1' });
+  const [form, setForm] = useState({ name: '', description: '', image: '' });
   const [adding, setAdding] = useState(false);
+  const [reordering, setReordering] = useState(false);
   const [error, setError] = useState('');
 
   useEffect(() => {
     if (!id) return;
     Promise.all([getTour(id), getKeypoints(id)])
-      .then(([t, kps]) => { setTour(t); setKeypoints(kps); setForm(f => ({ ...f, orderIndex: String(kps.length + 1) })); })
+      .then(([t, kps]) => {
+        setTour(t);
+        setKeypoints([...kps].sort((a, b) => a.orderIndex - b.orderIndex));
+      })
       .catch(e => setError(e.message))
       .finally(() => setLoading(false));
   }, [id]);
@@ -50,13 +54,15 @@ export function ManageKeypointsPage() {
     setError('');
     try {
       const kp = await addKeypoint(id, {
-        name: form.name, description: form.description,
-        latitude: selected.lat, longitude: selected.lon,
-        image: form.image || undefined, orderIndex: Number(form.orderIndex),
+        name: form.name,
+        description: form.description,
+        latitude: selected.lat,
+        longitude: selected.lon,
+        image: form.image || undefined,
       });
-      setKeypoints(prev => [...prev, kp]);
+      setKeypoints(prev => [...prev, kp].sort((a, b) => a.orderIndex - b.orderIndex));
       setSelected(null);
-      setForm({ name: '', description: '', image: '', orderIndex: String(keypoints.length + 2) });
+      setForm({ name: '', description: '', image: '' });
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Failed to add keypoint');
     } finally {
@@ -68,15 +74,39 @@ export function ManageKeypointsPage() {
     if (!id) return;
     try {
       await deleteKeypoint(id, kpId);
-      setKeypoints(prev => prev.filter(k => k.id !== kpId));
+      const updated = await getKeypoints(id);
+      setKeypoints(updated.sort((a, b) => a.orderIndex - b.orderIndex));
     } catch { /* ignore */ }
+  }
+
+  async function moveKeypoint(kpId: string, direction: 'up' | 'down') {
+    if (!id) return;
+    const sorted = [...keypoints].sort((a, b) => a.orderIndex - b.orderIndex);
+    const idx = sorted.findIndex(k => k.id === kpId);
+    if (idx < 0) return;
+    const swapIdx = direction === 'up' ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= sorted.length) return;
+
+    const ids = sorted.map(k => k.id);
+    [ids[idx], ids[swapIdx]] = [ids[swapIdx], ids[idx]];
+
+    setReordering(true);
+    try {
+      const updated = await reorderKeypoints(id, ids);
+      setKeypoints(updated.sort((a, b) => a.orderIndex - b.orderIndex));
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Failed to reorder');
+    } finally {
+      setReordering(false);
+    }
   }
 
   if (loading) return <PageShell><Spinner /></PageShell>;
   if (!tour) return <PageShell><p style={{ color: 'var(--danger)' }}>Tour not found.</p></PageShell>;
 
-  const mapCenter: [number, number] = keypoints.length > 0
-    ? [keypoints[0].latitude, keypoints[0].longitude]
+  const sorted = [...keypoints].sort((a, b) => a.orderIndex - b.orderIndex);
+  const mapCenter: [number, number] = sorted.length > 0
+    ? [sorted[0].latitude, sorted[0].longitude]
     : [45.267136, 19.833549];
 
   return (
@@ -86,8 +116,8 @@ export function ManageKeypointsPage() {
       <div className="kp-layout">
         <div className="kp-map-col">
           <LeafletMap center={mapCenter} zoom={13} height="440px" onClick={handleMapClick}>
-            <KeypointPath keypoints={keypoints} />
-            {keypoints.map(kp => (
+            <KeypointPath keypoints={sorted} />
+            {sorted.map(kp => (
               <Marker key={kp.id} position={[kp.latitude, kp.longitude]}>
                 <Popup><strong>{kp.orderIndex}. {kp.name}</strong></Popup>
               </Marker>
@@ -100,7 +130,7 @@ export function ManageKeypointsPage() {
           </LeafletMap>
           {selected ? (
             <Card className="kp-add-form">
-              <h3>Add Keypoint at {selected.lat.toFixed(5)}, {selected.lon.toFixed(5)}</h3>
+              <h3>Add Keypoint #{sorted.length + 1} at {selected.lat.toFixed(5)}, {selected.lon.toFixed(5)}</h3>
               <form onSubmit={handleAdd} className="kp-form-fields">
                 <Input id="kp-name" label="Name" value={form.name}
                   onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required />
@@ -108,8 +138,6 @@ export function ManageKeypointsPage() {
                   onChange={e => setForm(f => ({ ...f, description: e.target.value }))} />
                 <Input id="kp-image" label="Image URL (optional)" value={form.image}
                   onChange={e => setForm(f => ({ ...f, image: e.target.value }))} />
-                <Input id="kp-order" label="Order" type="number" min="1" value={form.orderIndex}
-                  onChange={e => setForm(f => ({ ...f, orderIndex: e.target.value }))} />
                 {error && <p style={{ color: 'var(--danger)', fontSize: '0.875rem' }}>{error}</p>}
                 <div style={{ display: 'flex', gap: 8 }}>
                   <Button type="submit" size="sm" disabled={adding}>{adding ? '…' : 'Add Keypoint'}</Button>
@@ -118,19 +146,26 @@ export function ManageKeypointsPage() {
               </form>
             </Card>
           ) : (
-            <p className="kp-hint">Click on the map to place a keypoint.</p>
+            <p className="kp-hint">Click on the map to place the next keypoint. Order is assigned automatically.</p>
           )}
         </div>
 
         <div className="kp-list-col">
-          <h2>Keypoints ({keypoints.length})</h2>
-          {keypoints.length === 0 && <p style={{ color: 'var(--text-muted)', marginTop: 8 }}>No keypoints yet. Click the map to add one.</p>}
-          {keypoints.sort((a, b) => a.orderIndex - b.orderIndex).map(kp => (
+          <h2>Keypoints ({sorted.length})</h2>
+          <p className="kp-order-hint">Use ↑ ↓ to change visit order on the tour route.</p>
+          {sorted.length === 0 && <p style={{ color: 'var(--text-muted)', marginTop: 8 }}>No keypoints yet. Click the map to add one.</p>}
+          {sorted.map((kp, idx) => (
             <Card key={kp.id} className="kp-row">
               <div className="kp-row__header">
                 <span className="kp-order">{kp.orderIndex}</span>
                 <strong>{kp.name}</strong>
-                <Button variant="danger" size="sm" onClick={() => handleDelete(kp.id)} style={{ marginLeft: 'auto' }}>Delete</Button>
+                <div className="kp-row__actions">
+                  <Button variant="secondary" size="sm" disabled={reordering || idx === 0}
+                    onClick={() => moveKeypoint(kp.id, 'up')}>↑</Button>
+                  <Button variant="secondary" size="sm" disabled={reordering || idx === sorted.length - 1}
+                    onClick={() => moveKeypoint(kp.id, 'down')}>↓</Button>
+                  <Button variant="danger" size="sm" onClick={() => handleDelete(kp.id)}>Delete</Button>
+                </div>
               </div>
               <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: 4 }}>
                 {kp.latitude.toFixed(5)}, {kp.longitude.toFixed(5)}

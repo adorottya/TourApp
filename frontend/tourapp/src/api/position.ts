@@ -1,7 +1,12 @@
 import { apiFetch } from './client';
-import type { TouristPosition } from '../types/execution';
+import type { KeypointCheckResult, TouristPosition } from '../types/execution';
 
-export function recordPosition(latitude: number, longitude: number): Promise<TouristPosition> {
+export interface RecordPositionResponse {
+  position: TouristPosition;
+  executionProgress?: KeypointCheckResult;
+}
+
+export function recordPosition(latitude: number, longitude: number): Promise<RecordPositionResponse> {
   return apiFetch('/api/position/record', { method: 'POST', body: JSON.stringify({ latitude, longitude }) });
 }
 
